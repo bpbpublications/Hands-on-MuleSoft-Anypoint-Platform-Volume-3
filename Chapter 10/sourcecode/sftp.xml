@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2edce997-31c3-488f-a2dd-826850267082" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="92be398a-b3d5-4402-96bf-471377508f7b" >
+		<sftp:connection workingDir="#['/pub/example/']" host="test.rebex.net" username="demo" password="passowrd" />
+	</sftp:config>
+	
+	<flow name="sftpFlow" doc:id="d0cc25dc-946f-4ce7-a024-7b1f27ee5e01" >
+		<http:listener doc:name="Listener" doc:id="4ee58296-5c6b-4f9d-ae6e-a6993baee278" config-ref="HTTP_Listener_config" path="sftp"/>
+		<sftp:read doc:name="Read" doc:id="e919df31-d745-47a0-a823-37317bec2a30" config-ref="SFTP_Config" path="readme.txt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="69f41e1b-8c39-4f06-8189-1ccc4f5335e9" message="#[payload]"/>
+	</flow>
+</mule>

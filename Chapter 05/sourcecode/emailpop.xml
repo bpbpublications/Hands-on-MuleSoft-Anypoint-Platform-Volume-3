@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+	
+	
+	
+	
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="608f9c95-1dba-4a23-90c3-e10775e4b7ac" >
+
+		<http:listener-connection host="0.0.0.0" port="8081" />
+
+	</http:listener-config>
+
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" 
+		doc:id="5fd751f9-b8ef-47a1-8fb0-20c14d6915d8" >
+		<email:smtp-connection host="smtp.gmail.com" user="mulesoftemailtest@gmail.com" 
+		password="Mypass!@#123" port="587">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	
+	<email:imap-config name="Email_IMAP" doc:name="Email IMAP" 
+	doc:id="e84d552a-8785-41d9-9406-6635c6931391" >
+		<email:imap-connection host="smtp.gmail.com"  user="mulesoftemailtest@gmail.com" 
+		password="Mypass!@#123" port="993">
+			<email:properties >
+				<email:property key="mail.imap.ssl.enable" value="true" />
+			</email:properties>
+		</email:imap-connection>
+	</email:imap-config>
+	
+	<email:pop3-config name="Email_POP3" doc:name="Email POP3" 
+	doc:id="5d08be99-7f49-4b8f-a208-2740b787d579" >
+		<email:pop3-connection host="smtp.gmail.com"  user="mulesoftemailtest@gmail.com" 
+		password="Mypass!@#123" port="995">
+					<email:properties >
+				<email:property key="mail.pop3.ssl.enable" value="true" />
+			</email:properties>
+		</email:pop3-connection>
+	</email:pop3-config>
+
+
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="dd80c5ac-94cf-408f-a48b-de510506ffca" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="SendEmailandMarkasRead" doc:id="37b7b025-95c1-4584-b661-a24dd9e37a1e" >
+	<http:listener doc:name="Listener" doc:id="dd68b200-15ae-4cdc-99db-85a7d1cb1b5e" config-ref="HTTP_Listener_config1"/>
+		<email:send doc:name="Send" doc:id="4c4b2b8d-1a81-45a7-a828-1331abcf6ace" config-ref="Email_SMTP" fromAddress="mulesoftemailtest@gmail.com" subject="SendEmailandMarkasRead">
+			<email:to-addresses >			
+				<email:to-address value="mulesoftanypoint@gmail.com" />
+			</email:to-addresses>
+			<email:body >
+				<email:content ><![CDATA[TEST 			]]></email:content>
+			</email:body>
+		</email:send>		<email:mark-as-read emailId="0" doc:name="Mark as read" doc:id="ad52bc6c-3515-4525-b003-f2baebd92d37" config-ref="Email_IMAP"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d04e36bd-0832-4b1f-98ef-72c548f49705" message="SendEmailandMarkasRead"/>
+	</flow>
+	<flow name="SendEmailandMarkasDeleted" doc:id="80a4b81a-d2d9-4ee3-ac23-ffc2ee99945b" >
+	<http:listener doc:name="Listener" doc:id="b6ce1327-ee37-4bf5-9869-608a0f988bcd" config-ref="HTTP_Listener_config"/>
+		<email:send doc:name="Send" doc:id="6792047c-7927-468b-aed9-788d91c1b290" config-ref="Email_SMTP" fromAddress="mulesoftemailtest@gmail.com" subject="SendEmailandMarkasDeleted">
+			<email:to-addresses >			
+				<email:to-address value="mulesoftanypoint@gmail.com" />
+			</email:to-addresses>
+			<email:body >
+				<email:content ><![CDATA[TEST 			]]></email:content>
+			</email:body>
+		</email:send>
+				<email:mark-as-deleted emailId="0" doc:name="Mark as deleted" doc:id="99bdc3a5-c376-42c9-8ef2-7d74d51aa90d" config-ref="Email_IMAP"/>
+		<logger level="INFO" doc:name="Logger" doc:id="6e9c9d0e-f0d3-42d5-a283-a06a6010b2f9" message="SendEmailandMarkasDeleted"/>
+	</flow>
+	<flow name="DeleteEMail" doc:id="e7f8ae8f-37f4-4711-8dbf-f78dfe2193dd" >
+		<email:delete emailId="2" doc:name="DeleteEmaiil" doc:id="457d26d2-bbfa-42eb-b866-f4e827d7c253" config-ref="Email_IMAP"/>
+		<logger level="INFO" doc:name="Logger" doc:id="90d66bac-4d18-4fac-a9cb-33abfd798aa0" message="DeleteEMail"/>
+	</flow>
+	<flow name="emailpopFlow" doc:id="36761f6e-a7ad-4877-b7b2-bbaf7f5e23e6">
+		<http:listener doc:name="Listener" doc:id="dec375ad-63d6-4016-8cc8-12c849122eb5" />
+		<email:expunge-folder doc:name="Expunge folder" doc:id="42dc1e35-8252-4b8c-a936-be624660998f" config-ref="Email_IMAP" />
+	</flow>
+	<flow name="ONNewMailIMAP" doc:id="9fd41c77-018a-4259-91a1-5da51f9ff375" >
+		<email:listener-imap doc:name="On New Email - IMAP" doc:id="5cb3172f-82dc-48a4-a9e1-a3ce1a10d6ee" config-ref="Email_IMAP">
+			<scheduling-strategy >
+				<fixed-frequency frequency="4000"/>
+			</scheduling-strategy>
+		</email:listener-imap>
+		<logger level="INFO" doc:name="Logger" doc:id="3e68c292-c006-4c8f-8bfb-967b4f1ac9d2" message="ONNewMailIMAP"/>
+	</flow>
+	<flow name="ONNewMailIPOP3" doc:id="ea3aea11-05d7-493e-88a0-6f05cecd99a8" >
+		<email:listener-pop3 doc:name="On New Email - POP3" doc:id="4e6e1ffd-e3bb-4388-bef7-fe807eb52496" config-ref="Email_POP3">
+			<scheduling-strategy >
+				<fixed-frequency frequency="4000"/>
+			</scheduling-strategy>
+		</email:listener-pop3>
+		<logger level="INFO" doc:name="Logger" doc:id="3f7e5c35-bcf0-4ae3-aeeb-1cbbdaf51ee3" message="ONNewMailIPOP3"/>
+	</flow>
+	
+	
+	
+	
+	
+	
+	
+	
+</mule>
+
+
+api:
+  id: "16408507" # Added from API manager
+
+http:
+  host: "0.0.0.0"
+  basePath: "/v1/*"
+  private:
+    port: "8091"
+  timeouts:
+    connection: "30000"
+    response: "30000"
+
+    
+reconnection:
+  frequency: "500"
+  attempts: "3"
+
+notifications:
+  host: "dev-us-e1.apis.roche.com"
+  port: "443"
+  path: "/notifications"
+  basePath: "/notification-svc-dev/v1"
+  emailSubject: "Example Email Subject"
+
+egress:
+  email:
+    host: "genentechmail.egresslab.com"
+    port: "465"
+    timeout-connection: "30"
+    readtimeout: "30"
+    enabletls: "false"
+    socketfactoryfallback: "false"
+    enablessl: "true"
+    text: "Your browser does not support HTML."
+    timeout: "30000"
+    defaultMessage: "Value not provided"
+
+threadid:
+  prefix: "PACT-"
+  suffix: "-PN@gene.com" 
+  
+pgp:
+  fingerprint: "27C7158C080C810E"
+  keyId: "080C810E"
+  
+
+  /**
+ * 
+ */
+package com.egress.mail;
+
+import com.egress.mail.model.*;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import javax.activation.DataHandler;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.*;
+import javax.mail.util.ByteArrayDataSource;
+
+/**
+ * The MultipartSecureMessage class mitigates the lack of support to Multipart/Alternative Emails using the OOTB Email Connector v1.4
+ *
+ * @author Thiago Nascimento dos Santos
+ * @version 1.0
+ * @since 2021-02-22
+ */
+public class MultipartSecureMessage {
+	//Configurations
+	final static String ALTERNATIVE = "alternative";
+	final static String MIME_VERSION = "MIME-Version";
+	final static String MIME_VERSION_VALUE = "1.0";
+	final static String CONTENT_TYPE = "Content-Type"; 
+	final static String CHARSET = "charset=iso-8859-1";
+
+	//Actions
+	final static String ANONYMOUS_AUTH_LOG = "Invoking Email Server Anonymously...";
+	final static String BASIC_AUTH_LOG = "Performing Username and Password Authentication...";
+	final static String MESSAGE_SENT = "The Multipart/Alternative email has been successfully sent!";
+
+	
+	//Exceptions
+	final static String NO_SERVER_CONFIGURATION_EXCEPTION_MESSAGE = "Email Server Configuration Properties not provided.";
+	final static String NO_RECIPIENT_EXCEPTION_MESSAGE = "Message Recipient Not Informed";
+
+	
+	private static String serverUsername;
+	private static String serverPassword;
+	
+	/**
+	 * Send email with a multi-mime content.
+	 *
+	 * @param message
+	 * @throws NoSuchProviderException 
+	 * @throws MessagingException message exception
+	 */
+	public static boolean send(MultipartAlternativeMessage message) throws NoSuchProviderException, MessagingException {
+		Logger logger = Logger.getLogger(MultipartSecureMessage.class.getName());
+		try {
+			MimeMultipart msgContent = new MimeMultipart(ALTERNATIVE);
+		
+			//Set Body Parts
+			for(String key : message.getBodyParts().keySet()) {
+				MimeBodyPart emailPart = new MimeBodyPart();
+				emailPart.setContent( message.getBodyParts().get(key), key);
+				emailPart.setHeader( MIME_VERSION, MIME_VERSION_VALUE);
+				emailPart.setHeader( CONTENT_TYPE, key + "; " + CHARSET);
+			    msgContent.addBodyPart( emailPart);
+			}
+			logger.info("JAVA Class Set Attachment");
+			//Set Attachments
+			for(String key : message.getAttachments().keySet()) {
+				String[] fileParts = key.split(";");
+				String filename = fileParts[0];
+				String contentType = fileParts[1];
+				String content = message.getAttachments().get(key);
+				
+				MultipartAlternativeAttachment file = new MultipartAlternativeAttachment(filename, contentType, content);
+				
+				MimeBodyPart attachmentsPart = new MimeBodyPart();
+				attachmentsPart.setDataHandler(new DataHandler(new ByteArrayDataSource(file.getContent(), file.getContentType())));
+				attachmentsPart.setFileName(file.getFileName());
+				msgContent.addBodyPart( attachmentsPart);
+			}
+			
+			logger.info("JAVA Class Set Server Configuration");
+			//Set Server Configuration
+			if(message.getServerConfig().isEmpty())
+				throw new NoSuchProviderException(NO_SERVER_CONFIGURATION_EXCEPTION_MESSAGE);
+				
+			Properties props = System.getProperties();
+			for(String key : message.getServerConfig().keySet()) {
+				props.put(key, message.getServerConfig().get(key));
+				System.out.println("Adding Config: " + key + " =  " + message.getServerConfig().get(key) );
+			}
+			
+			//Session 
+			Session session;
+			serverUsername = message.getServerUsername();
+			serverPassword = message.getServerPassword();
+			
+			logger.info("JAVA Class Set Username and password login");
+			
+			if(serverUsername != null && serverPassword != null) {
+			    System.out.println(BASIC_AUTH_LOG);
+				
+				//Username and password login
+				session = Session.getDefaultInstance(props,
+				          new javax.mail.Authenticator() {
+				            	protected PasswordAuthentication getPasswordAuthentication() {
+				            		return new PasswordAuthentication(serverUsername, serverPassword);
+				            	}
+							});
+			}else {
+			    System.out.println(ANONYMOUS_AUTH_LOG);
+				
+				//Anonymous permitted
+				session = Session.getInstance(props,null);
+			}
+							
+			MimeMessage email = new MimeMessage(session);
+			//Set Custom Headers
+			for(String key : message.getHeaders().keySet()) {
+				email.addHeader(key, message.getHeaders().get(key));
+			}
+			
+			email.setFrom(new InternetAddress(message.getFrom()));
+			
+			//Set Recipients
+			if(message.getTo().length == 0)
+				throw new MessagingException(NO_RECIPIENT_EXCEPTION_MESSAGE);
+			
+			for(String to : message.getTo()) {
+				email.setRecipients(Message.RecipientType.TO,InternetAddress.parse(to));
+			}
+			
+			//Set CC
+			for(String cc : message.getCC()) {
+				email.setRecipients(Message.RecipientType.CC,InternetAddress.parse(cc));
+			}
+
+			//Set BCC
+			for(String bcc : message.getBCC()) {
+				email.setRecipients(Message.RecipientType.BCC,InternetAddress.parse(bcc));
+			}
+
+			//Set Reply-To
+			if(message.getReplyTo() != null)
+				email.setReplyTo(new javax.mail.Address[]
+						{
+						    new javax.mail.internet.InternetAddress(message.getReplyTo())
+						});
+			email.setSubject(message.getSubject(), "UTF-8");		
+			email.setContent(msgContent);
+			
+			//Send Email
+			Thread.currentThread().setContextClassLoader(javax.mail.Message.class.getClassLoader());
+			Transport.send(email);
+
+			
+			return true;
+			
+		}catch(Exception e) {
+		    logger.info(e.toString());
+		    return false;
+		}
+	}
+
+}

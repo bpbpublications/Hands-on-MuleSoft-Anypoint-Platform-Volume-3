@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ldap="http://www.mulesoft.org/schema/mule/ldap" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ldap http://www.mulesoft.org/schema/mule/ldap/current/mule-ldap.xsd">
+	<ldap:config name="LDAP_Configuration" doc:name="LDAP Configuration" doc:id="dfd73b40-06b8-45b7-ba0c-c873ac9af5ac" >
+		<ldap:basic-connection authDn="uid=admin,ou=system" authPassword="secret" url="ldap://localhost:10389" />
+	</ldap:config>
+	<flow name="ldapFlow" doc:id="2b8c6484-9244-471c-a1d7-0c943060d47c" >
+		<scheduler doc:name="Scheduler" doc:id="41ee6487-9954-4706-bf89-026655029502" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</scheduler>
+		<ldap:lookup doc:name="Lookup" doc:id="dd75c9a3-6f93-436d-8508-2d6875f0ba26" config-ref="LDAP_Configuration" dn="uid=admin,ou=system"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2d78d48d-80e5-4981-9777-0fec7526c12a" message="#[payload]"/>
+	</flow>
+</mule>

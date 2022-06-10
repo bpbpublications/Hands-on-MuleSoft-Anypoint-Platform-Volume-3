@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b5410274-11bf-4f86-a2aa-ea1c99d43807" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+
+	<flow name="nashornFlow"  >
+	<http:listener doc:name="Listener"  config-ref="HTTP_Listener_config" path="nashorn"/>
+	<scripting:execute engine="ECMAScript" doc:name="Execute"  >
+		<scripting:code ><![CDATA[print('From ECMASCRIPT SCRIPTING ENGIN');]]></scripting:code>
+	</scripting:execute>
+	<set-payload value="ORACLE NASHORN ECMASCRIPT ENGINE CALLED" doc:name="Set Payload" />
+	</flow>
+	<flow name="groovyFlow"  >
+		<http:listener doc:name="Listener"  config-ref="HTTP_Listener_config" path="groovy"/>
+		<scripting:execute engine="Groovy" doc:name="Execute"  >
+		 <scripting:code><![CDATA[println("From GROOVY SCRIPTING ENGIN"); 	]]></scripting:code>
+		</scripting:execute>
+		<set-payload value="GROOVY ENGINE CALLED" doc:name="Set Payload"  />
+	</flow>
+	<flow name="jythonFlow" >
+		<http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="jython"/>
+		<scripting:execute doc:name="Execute"  engine="jython">
+			<scripting:code ><![CDATA[print "From PYTHON SCRIPTING ENGIN"]]></scripting:code>
+		</scripting:execute>
+		<set-payload value="PYTHON ENGINE CALLED" doc:name="Set Payload" />
+	</flow>
+	<flow name="rubyFlow" >
+		<http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="ruby"/>
+		<scripting:execute engine="ruby" doc:name="Execute"  >
+			<scripting:code ><![CDATA[puts "From RUBY SCRIPTING ENGIN";]]></scripting:code>
+		</scripting:execute>
+		<set-payload value="RUBY ENGINE CALLED" doc:name="Set Payload"  />
+	</flow>
+	
+	
+	
+	
+
+
+</mule>

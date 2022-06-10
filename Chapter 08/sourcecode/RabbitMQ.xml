@@ -1,0 +1,47 @@
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:amqp="http://www.mulesoft.org/schema/mule/amqp"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<amqp:config name="AMQP_Config" doc:name="AMQP Config" doc:id="58c39b16-81a6-41d7-a293-fe470971e2c7" >
+		<amqp:connection host="localhost" username="guest" password="guest" />
+	</amqp:config>
+	<flow name="rabbitMQPublishFlow" doc:id="c43f8409-8b01-41a9-b29a-bc784e1ffea3" >
+		<scheduler doc:name="Scheduler" doc:id="1650afc7-bd04-4967-876a-28a379a53040" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="3000"/>
+			</scheduling-strategy>
+		</scheduler>
+		
+		<amqp:publish doc:name="Publish" doc:id="91e07840-3249-4efa-8da6-c02116855826" config-ref="AMQP_Config" exchangeName="amq.topic">
+		<amqp:message> 
+				<amqp:body><![CDATA[#[output application/json ---
+						{
+						  consignment_number: randomInt(10000),
+						  supplier: "Alliance",
+						  items: "Cosmetics"
+						}]]]></amqp:body>
+        			<amqp:properties priority="3"/> 
+			</amqp:message>
+		</amqp:publish>
+
+		<logger level="INFO" doc:name="Logger" doc:id="c215b87c-dc74-4c36-89ec-64cfb2a466d5" message="#['message published']"/>
+	</flow>
+	
+	<flow name="rabbitMQConsumeFlow" doc:id="73c6307b-d0db-4c02-acb8-869fc6723903" >
+		<amqp:listener doc:name="Listener" doc:id="744d88d0-18c9-406f-9d44-fe956e155add" config-ref="AMQP_Config" queueName="test"/>
+		<ee:transform doc:name="Transform Message" doc:id="3a93afcc-7592-4d6e-9597-2156511e5ab7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+					output application/xml
+					---
+					   {
+						items: payload
+						}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e7f60085-1775-42f2-ab19-d9a84ae0d98f" message="#['message consumed']"/>
+		<logger level="INFO" doc:name="Logger" doc:id="756d9741-d9dd-44d9-ab44-558fc724488a" message="#[payload.items]" />
+	</flow>
+</mule>

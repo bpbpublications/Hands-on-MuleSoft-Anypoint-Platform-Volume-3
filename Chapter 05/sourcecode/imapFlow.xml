@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+	
+	
+	<email:imap-config name="Email_IMAP" doc:name="Email IMAP" 
+	doc:id="71630f2e-f5f9-4c45-b816-f2e19b60aac2" >
+		<email:imap-connection host="sg3plcpnl0224.prod.sin3.secureserver.net"  user="nanda.nachimuthu@mithunna.com" 
+		password="Pillai@@123" port="993">
+			<email:properties >
+				<email:property key="mail.imap.ssl.enable" value="true" />
+			</email:properties>
+		</email:imap-connection>
+	</email:imap-config>
+	
+		<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" 
+		doc:id="8126b234-b677-4e00-85ee-33a7472b5853" >
+		<email:smtp-connection host="smtp.gmail.com" user="mulesoftemailtest@gmail.com" 
+		password="Mypass!@#123" port="587">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	
+		<email:pop3-config name="Email_POP3" doc:name="Email POP3" 
+	doc:id="5d08be99-7f49-4b8f-a208-2740b787d579" >
+		<email:pop3-connection host="smtp.gmail.com"  user="mulesoftemailtest@gmail.com" 
+		password="Mypass!@#123" port="995">
+					<email:properties >
+				<email:property key="mail.pop3.ssl.enable" value="true" />
+			</email:properties>
+		</email:pop3-connection>
+	</email:pop3-config>
+	
+		<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="63563593-5a42-4958-a84a-5b4cdcb46afd" >
+
+		<http:listener-connection host="0.0.0.0" port="8081" />
+
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="628e6b60-c4dd-47f7-8cd7-266c95fa1fc7" >
+		<http:listener-connection host="0.0.0.0" port="8888" />
+	</http:listener-config>
+	<flow name="imapFlow" doc:id="1d7575f0-6f16-4979-b414-cb1bbf5a1fbf" >
+		<http:listener doc:name="Listener" doc:id="5f72ce0b-89f6-402f-81aa-9e4c8dcda949" config-ref="HTTP_Listener_config1" path="imap"/>
+		<logger level="INFO" doc:name="Logger" doc:id="80713633-8886-474c-aa31-d1600c4e0851" message="before listing"/>
+		<email:list-imap doc:name="List - IMAP" doc:id="9f5d7e3d-a0fc-4ee3-a910-00936a506510" config-ref="Email_IMAP" mailboxFolder="INBOX.nanda"/>
+		<logger level="INFO" doc:name="Logger" doc:id="692d8308-02da-4fdd-9aab-35f44a189072" message="#[payload]"/>
+	</flow>
+	
+	
+	
+	
+</mule>

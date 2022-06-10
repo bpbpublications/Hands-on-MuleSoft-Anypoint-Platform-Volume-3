@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="BankLoan_HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0349a390-2868-4971-a95c-550541fc8d08" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:object-store name="BankLoanStore" doc:name="Object store" doc:id="e8cb7b5a-b880-41c3-9d69-64fac84c47a8" maxEntries="50" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="0ad365fb-e172-4c6f-a415-85185aa0259f" maxEntries="100" entryTtl="1" entryTtlUnit="DAYS" />
+	<flow name="loanStoreFlow" doc:id="0500810f-27c5-4e15-aa02-1e71c4b70f4e" >
+		<http:listener doc:name="Listener" doc:id="b9526590-d83f-415f-851e-1157e7d2d808" config-ref="BankLoan_HTTP_Listener_config" path="store"/>
+		<os:store doc:name="BankLoanStore" doc:id="219c0913-2405-4cf6-b536-58b6e10810be" key="#[attributes.queryParams.loanID]" objectStore="Object_store">
+			<os:value ><![CDATA[#[attributes.queryParams.loanStatus]]]></os:value>
+		</os:store>
+	</flow>
+	<flow name="loanRetriveFlow" doc:id="77dc2ec4-caa7-4861-ba88-c32e578df97e" >
+		<http:listener doc:name="Listener" doc:id="ae784076-32f9-4256-a57f-ae5630d40ef6" config-ref="BankLoan_HTTP_Listener_config" path="retrive"/>
+		<os:retrieve doc:name="Retrieve" doc:id="45a231ea-2af4-4bb8-a9dd-f8bbd91a62f0" key="#[attributes.queryParams.loanID]" objectStore="BankLoanStore"/>
+		<ee:transform doc:name="Transform Message" doc:id="13672450-3e43-41db-9e0c-c9c782a31c0b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="7034f84a-d8bd-41be-b8e9-d429720cc321" />
+	</flow>
+	<flow name="allLoanFlow" doc:id="576d3449-beb1-4448-b9b7-1ad463ccb183" >
+		<http:listener doc:name="Listener" doc:id="60fbe15f-0c60-4b9c-988c-f165613ad61a" config-ref="BankLoan_HTTP_Listener_config" path="retriveall"/>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="d47a6eb0-77c8-440d-b6f3-f32edfa6b162" objectStore="BankLoanStore"/>
+		<ee:transform doc:name="Transform Message" doc:id="df54695e-c81d-432e-bf5a-87bc2795d2c1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="e4acd22e-dd4b-4743-8ce2-09a06bc75a56" />
+	</flow>
+	<flow name="loanRemoveFlow" doc:id="042de6c4-7a04-4983-be91-b96897e884bb" >
+		<http:listener doc:name="Listener" doc:id="1212a142-cd85-48bc-bbf2-ae4fde0119a2" config-ref="BankLoan_HTTP_Listener_config" path="remove"/>
+		<os:remove doc:name="Remove" doc:id="52ec7506-d41f-4b0a-bbeb-7cc4afdcb313" key="#[attributes.queryParams.loanID]" objectStore="BankLoanStore"/>
+	</flow>
+	<flow name="allLoanIDsFlow" doc:id="5462f06d-d8be-4d0c-85a9-1b3bbb7f4308" >
+		<http:listener doc:name="Listener" doc:id="f8ef0c56-e2e5-42e2-b738-6f4cfc66df20" config-ref="BankLoan_HTTP_Listener_config" path="retriveallkeys"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="980e68fb-2f38-4aa3-81f4-d16cbcfe6bfd" objectStore="BankLoanStore"/>
+		<ee:transform doc:name="Transform Message" doc:id="eecb2f69-b1dd-4d7c-8576-e978b37dc08d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="abeb5f31-6b58-4888-a130-a03ab425df9f" />
+	</flow>
+	<flow name="loanContainsFlow" doc:id="1673cdb8-8f68-45ee-8ab9-14ebe8668765">
+		<http:listener doc:name="Listener" doc:id="073bede0-1a77-40bb-be84-208086a67f0c" config-ref="BankLoan_HTTP_Listener_config" path="contains" />
+		<os:contains doc:name="Contains" doc:id="ad61df2c-238d-441f-93d6-9c3510478297" key="#[attributes.queryParams.loanID]" objectStore="BankLoanStore" />
+		<ee:transform doc:name="Transform Message" doc:id="38c648ac-43b8-451f-ad0b-f91dca6137f4">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="54e81cdb-d6dc-4714-b647-0eef9e67d7c3" />
+	</flow>
+	<flow name="clearLoansFlow" doc:id="cfb26a7f-ea11-47db-aca9-5aed18642cea" >
+		<http:listener doc:name="Listener" doc:id="f5b1b6cb-18a9-4c0e-80e7-16a56eb3e365" config-ref="BankLoan_HTTP_Listener_config" path="clear"/>
+		<os:clear doc:name="Clear" doc:id="8697a738-320f-487d-956f-12c00db7ac51" objectStore="BankLoanStore"/>
+	</flow>
+</mule>

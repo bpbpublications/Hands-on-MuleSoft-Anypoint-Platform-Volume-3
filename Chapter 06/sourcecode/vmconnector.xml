@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<vm:config name="VM_Config" doc:name="VM Config" doc:id="78001dfe-41d7-43c2-9f0d-7f6c6fb6bd06" >
+		<vm:connection />
+		<vm:queues >
+			<vm:queue queueName="test" maxOutstandingMessages="100" />
+			<vm:queue queueName="test1" maxOutstandingMessages="100" />
+			<vm:queue queueName="test2" maxOutstandingMessages="100" />
+		</vm:queues>
+	</vm:config>
+	<flow name="vmconnectorFlow" doc:id="5683eab6-dce7-41ba-9b82-bf958ce016e9" >
+		<scheduler doc:name="Scheduler" doc:id="9634a62f-7744-4a6e-9115-6da169428a6e" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="2" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<set-payload value="#[random() * 789]" doc:name="Set Payload" doc:id="d1f6aa32-6d46-439d-92af-486a822403cb" />
+		<vm:publish doc:name="Publish" doc:id="dba7e0c7-616a-464f-9911-9c56e9f17d88" config-ref="VM_Config" queueName="test" sendCorrelationId="ALWAYS" correlationId="#[correlationId]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="79c1a7e7-f616-4e11-a980-3c8a9b39a019" message="#[' published to test----' ++ payload]"/>
+	</flow>
+	<flow name="vmconnectorFlow1" doc:id="b7d27470-c4ba-479f-afcb-b366adff4f54" >
+		<scheduler doc:name="Scheduler" doc:id="104d3dac-5a6a-48e1-9ee6-3aa6e7748c8a" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="4" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<vm:consume queueName="test2" doc:name="Consume" doc:id="00c45548-2a05-451b-bc44-a717866d0e5f" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="995dd745-b277-4269-9bf8-ab871910d97e" message="#['consumed----' ++ payload]"/>
+	</flow>
+	<flow name="vmconnectorFlow3" doc:id="5e17f1a0-6937-4022-aaca-b81a7b467f1e" >
+		<scheduler doc:name="Scheduler" doc:id="38b8aa7a-b770-4bd8-ae9f-22bf91b79952" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+				<set-payload value="#[random() * 789]" doc:name="Set Payload" doc:id="587e479f-90e5-49b3-9f07-44a782af5079" />
+		
+		<vm:publish queueName="test2" doc:name="Publish" doc:id="5a272082-40ec-4123-af4a-b1159a82dd14" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8b5f8660-0366-4f6d-b656-31acdd93e021" message="#[' published to test2----' ++ payload]"/>
+	</flow>
+	<flow name="vmconnectorFlow2" doc:id="78038b23-ed47-4869-9b38-8d648ffb1e6d" >
+		<vm:listener queueName="test" doc:name="Listener" doc:id="9b80667d-8483-415c-b093-e61e39bec106" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2e258fe2-73fe-4896-a196-c0c7cf6a341a" message="#['Listening' ++ payload]"/>
+	</flow>
+</mule>
